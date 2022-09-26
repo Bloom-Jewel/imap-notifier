@@ -1,0 +1,14 @@
+debug: true
+servers:
+  server-key-name:
+    address: imap.address.com
+    port: imap.port.default.993
+    ssl: imaps.flag.default.true
+accounts:
+  account-key-name:
+    server: servers.server-key-name
+    user:   account-username
+    pass:   account-password
+    enable: true
+webhooks:
+  webhook-key: discord-webhook-link
