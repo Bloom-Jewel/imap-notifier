@@ -115,7 +115,7 @@ if $0 == __FILE__ then
       box = list.find do |box_| box_.attr.include?(flag) end
       next if box.nil?
       
-      imap.examine box.name
+      imap.public_send CONFIG[:debug] ? :examine : :select, box.name
       search_query = [
         'UNSEEN',
         'NOT', 'FROM ' + account[:user],
