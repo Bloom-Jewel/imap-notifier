@@ -138,6 +138,7 @@ if $0 == __FILE__ then
         actual_keys  = plain_keys.map do |k| k.sub('.PEEK', '') end
         imap.fetch(fetch_data.seqno, CONFIG[:debug] ? plain_keys : actual_keys).first
           .attr.each do |body_key, body_content|
+            next unless body_key.start_with?('BODY')
             body_code = body_key[5..-1]
             body_structure = dig_body_parts(structure, body_code)
             mime_parts << decode_message(body_content, body_structure.encoding)
