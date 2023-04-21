@@ -151,7 +151,7 @@ if $0 == __FILE__ then
             unless is_plain then
               msg = Nokogiri::HTML(msg).text
             end
-            msg.gsub!(/(?:\r?\n){2,}/, "\r\n")
+            msg.gsub!(/(?:\r?\n\s*){2,}/m, "\r\n")
             mime_parts << msg
           end
         
