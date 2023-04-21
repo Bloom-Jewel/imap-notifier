@@ -131,17 +131,28 @@ if $0 == __FILE__ then
         envelope = fetch_data.attr['ENVELOPE']
         structure = fetch_data.attr['BODYSTRUCTURE']
         mime_parts = []
-        plain_parts = scan_body_parts(structure, media: 'TEXT', subtype: 'PLAIN')
-        plain_keys  = plain_parts.map do |k|
+        is_plain = true
+        text_parts = scan_body_parts(structure, media: 'TEXT', subtype: 'PLAIN')
+        if text_parts.empty?
+          is_plain = false
+          text_parts = scan_body_parts(structure, media: 'TEXT')
+        end
+        plain_keys  = text_parts.map do |k|
           ["BODY.PEEK[#{k}]"]
         end.flatten
         actual_keys  = plain_keys.map do |k| k.sub('.PEEK', '') end
+        next if plain_keys.empty? && actual_keys.empty?
         imap.fetch(fetch_data.seqno, CONFIG[:debug] ? plain_keys : actual_keys).first
           .attr.each do |body_key, body_content|
             next unless body_key.start_with?('BODY')
             body_code = body_key[5..-1]
             body_structure = dig_body_parts(structure, body_code)
-            mime_parts << decode_message(body_content, body_structure.encoding)
+            msg = decode_message(body_content, body_structure.encoding)
+            unless is_plain then
+              msg = Nokogiri::HTML(msg).text
+            end
+            msg.gsub!(/(?:\r?\n){2,}/, "\r\n")
+            mime_parts << msg
           end
         
         messages << [envelope, structure, mime_parts]
