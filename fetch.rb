@@ -149,7 +149,11 @@ if $0 == __FILE__ then
             body_structure = dig_body_parts(structure, body_code)
             msg = decode_message(body_content, body_structure.encoding)
             unless is_plain then
-              msg = Nokogiri::HTML(msg).text
+              html = Nokogiri::HTML(msg)
+              %w(style script).each do |k|
+                html.at_css(k)&.unlink while html.at_css(k)
+              end
+              msg = html.text
             end
             msg.gsub!(/(?:\r?\n\s*){2,}/m, "\r\n")
             mime_parts << msg
